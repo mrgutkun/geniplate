@@ -1,11 +1,12 @@
 Name:           geniplate-mirror
-Version:        0.6.0.6
+Version:        0.6.0.7
 Synopsis:       Use Template Haskell to generate Uniplate-like functions.
 Description:    Use Template Haskell to generate Uniplate-like functions.
                 .
                 This is a maintained mirror of the
                 <http://hackage.haskell.org/package/geniplate geniplate> package,
                 written by Lennart Augustsson.
+Homepage:       https://github.com/danr/geniplate
 Bug-reports:    https://github.com/danr/geniplate/issues
 License:        BSD3
 License-File:   LICENSE
