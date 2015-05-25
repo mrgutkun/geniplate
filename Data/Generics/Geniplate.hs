@@ -220,9 +220,15 @@ contains to afrom = do
         return True
      else do
         c <- gets snd
-        case mLookup from c of
+        case mLookupSplits from c of
             Just b  -> return b
             Nothing -> contains' to from
+
+mLookupSplits :: Type -> Map Type a -> Maybe a
+mLookupSplits ty m = msum [ mLookup ty' m | ty' <- splits ty ]
+  where
+    splits t@(AppT u _) = t:splits u
+    splits t = [t]
 
 -- Check if the second type is contained somewhere inside the first.
 contains' :: Type -> Type -> U Bool
