@@ -1,3 +1,6 @@
+geniplate 0.7.1 (released 2015-06-02):
+* Fix build on GHC 7.4.1
+
 geniplate 0.7 (released 2015-06-02):
 * Add descend, DescendM and DescendBiM.
   Related pull request: https://github.com/augustss/geniplate/pull/7

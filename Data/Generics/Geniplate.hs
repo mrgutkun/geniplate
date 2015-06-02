@@ -209,7 +209,7 @@ instance Quasi U where
     qReport b = lift . qReport b
     qRecover = error "Data.Generics.Geniplate: qRecover not implemented"
     qReify = lift . qReify
-#if __GLASGOW_HASKELL__ >= 706
+#if __GLASGOW_HASKELL__ >= 704
     qReifyInstances n = lift . qReifyInstances n
 #elif __GLASGOW_HASKELL__ >= 702
     qClassInstances n = lift . qClassInstances n
