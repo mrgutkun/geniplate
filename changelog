@@ -1,0 +1,13 @@
+geniplate 0.7 (released 2015-06-02):
+* Add descend, DescendM and DescendBiM.
+  Related pull request: https://github.com/augustss/geniplate/pull/7
+
+geniplate 0.6.0.7 (released 2015-05-25):
+
+* Blocking polymorphic type constructors in `transformBiM'` and families.
+  Contributed by Nick Smallbone.
+
+geniplate 0.6.0.6 (relased 2015-04-29):
+* Support GHC 7.10
+* Add TypeQ-arg'd versions of `genUniverseBi*` and `genTransformBi*`
+  Contributed by Víctor López Juan.
