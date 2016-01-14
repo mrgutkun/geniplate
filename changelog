@@ -1,3 +1,7 @@
+geniplate 0.7.2 (released 2016-01-04):
+* Support template-haskell 2.11.*.
+  Contributed by Andrés Sicard-Ramírez.
+
 geniplate 0.7.1 (released 2015-06-02):
 * Fix build on GHC 7.4.1
 
