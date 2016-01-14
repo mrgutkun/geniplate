@@ -396,8 +396,13 @@ getTyConInfo :: (Quasi q) => Name -> q ([TyVarBndr], [Con])
 getTyConInfo con = do
     info <- qReify con
     case info of
-        TyConI (DataD _ _ tvs cs _) -> return (tvs, cs)
+#if __GLASGOW_HASKELL__ <= 710
+        TyConI (DataD _ _ tvs cs _)   -> return (tvs, cs)
         TyConI (NewtypeD _ _ tvs c _) -> return (tvs, [c])
+#else
+        TyConI (DataD _ _ tvs _ cs _)   -> return (tvs, cs)
+        TyConI (NewtypeD _ _ tvs _ c _) -> return (tvs, [c])
+#endif
         PrimTyConI{} -> return ([], [])
         i -> genError $ "unexpected TyCon: " ++ show i
 
@@ -415,8 +420,12 @@ getNameType :: (Quasi q) => Name -> q ([TyVarBndr], Type, Type)
 getNameType name = do
     info <- qReify name
     case info of
+#if __GLASGOW_HASKELL__ <= 710
         VarI _ t _ _ -> splitType t
-        _            -> genError $ "Name is not variable: " ++ pprint name
+#else
+        VarI _ t _  -> splitType t
+#endif
+        _ -> genError $ "Name is not variable: " ++ pprint name
 
 unList :: Type -> Type
 unList (AppT (ConT n) t) | n == ''[] = t
