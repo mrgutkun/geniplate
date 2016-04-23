@@ -80,7 +80,11 @@ funDef :: Name -> Exp -> [Dec]
 funDef f e = [FunD f [Clause [] (NormalB e) []]]
 
 instDef :: Name -> [Type] -> Name -> Exp -> [Dec]
+#if __GLASGOW_HASKELL__ <= 710
 instDef cls ts met e = [InstanceD [] (foldl AppT (ConT cls) ts) (funDef met e)]
+#else
+instDef cls ts met e = [InstanceD Nothing [] (foldl AppT (ConT cls) ts) (funDef met e)]
+#endif
 
 -- | Create a 'TransformBi' instance.
 -- The 'TypeQ' argument should be a pair; the /inner/ and /outer/ types for 'transformBi'.
