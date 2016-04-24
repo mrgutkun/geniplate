@@ -1,3 +1,10 @@
+geniplate 0.7.4 (released 2016-04-24):
+* Fix the template-haskell 2.11.* support
+  Contributed by Andrés Sicard-Ramírez.
+
+geniplate 0.7.3 (released 2016-04-24)
+* Accidentally the same as 0.7.2
+
 geniplate 0.7.2 (released 2016-01-04):
 * Support template-haskell 2.11.*.
   Contributed by Andrés Sicard-Ramírez.
