@@ -611,7 +611,12 @@ trBiList seenStop doDescend ra f ft st et = do
 trBiTuple :: Bool -> Mode -> RetAp -> Exp -> Type -> Type -> [Type] -> U [Clause]
 trBiTuple seenStop doDescend ra f ft st ts = do
     vs <- mapM (const $ qNewName "_t") ts
+#if __GLASGOW_HASKELL__ >= 810
+-- `TupE` handles tuple sections since template-haskell 2.16.
+    let tupE = LamE (map VarP vs) $ TupE (map (Just . VarE) vs)
+#else
     let tupE = LamE (map VarP vs) $ TupE (map VarE vs)
+#endif
     c <- trMkArm seenStop doDescend ra f ft st [] TupP tupE ts
     return [c]
 

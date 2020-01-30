@@ -11,7 +11,7 @@ Bug-reports:    https://github.com/danr/geniplate/issues
 License:        BSD3
 License-File:   LICENSE
 Author:         Lennart Augustsson
-Maintainer:     Dan Rosén, dan.rosen@gu.se
+Maintainer:     Dan Rosén <dan.rosen@gu.se>, Liang-Ting Chen <liang.ting.chen.tw@gmail.com>
 Copyright:      2014-2015 Lennart Augustsson
 Category:       Generics
 Build-type:     Simple
@@ -28,6 +28,6 @@ source-repository head
   location: https://github.com/danr/geniplate
 
 library
-  Build-Depends: base >= 4 && < 5.0, template-haskell < 2.15, mtl
+  Build-Depends: base >= 4 && < 5.0, template-haskell < 2.17, mtl
 
   Exposed-modules:      Data.Generics.Geniplate
