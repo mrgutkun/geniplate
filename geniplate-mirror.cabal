@@ -1,5 +1,5 @@
 Name:           geniplate-mirror
-Version:        0.7.6
+Version:        0.7.7
 Synopsis:       Use Template Haskell to generate Uniplate-like functions.
 Description:    Use Template Haskell to generate Uniplate-like functions.
                 .
