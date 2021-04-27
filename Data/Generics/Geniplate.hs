@@ -220,6 +220,11 @@ instance Quasi U where
 #endif
     qLocation = lift qLocation
     qRunIO = lift . qRunIO
+#if MIN_VERSION_template_haskell(2,14,0)
+    qAddForeignFilePath l = undefined -- lift . qAddForeignFilePath l
+#elif MIN_VERSION_template_haskell(2,12,0)
+    qAddForeignFile l   = undefined -- lift . qAddForeignFile l
+#endif
 #if MIN_VERSION_template_haskell(2,7,0)
     qLookupName ns = lift . qLookupName ns
     qAddDependentFile = lift . qAddDependentFile
@@ -229,8 +234,23 @@ instance Quasi U where
     qReifyModule = lift . qReifyModule
     qAddTopDecls = lift . qAddTopDecls
     qAddModFinalizer = lift . qAddModFinalizer
-    qGetQ = undefined -- lift . qGetQ
+    qGetQ = lift qGetQ
     qPutQ = lift . qPutQ
+#if MIN_VERSION_template_haskell(2,11,0)
+    qReifyFixity        = undefined -- lift . qReifyFixity
+    qReifyConStrictness = undefined -- lift . qReifyConStrictness
+    qIsExtEnabled       = undefined -- lift . qIsExtEnabled
+    qExtsEnabled        = undefined -- lift (qExtsEnabled)
+#if MIN_VERSION_template_haskell(2,13,0)
+    qAddCorePlugin      = undefined -- lift . qAddCorePlugin
+#if MIN_VERSION_template_haskell(2,14,0)
+    qAddTempFile        = undefined -- lift . qAddTempFile
+#if MIN_VERSION_template_haskell(2,16,0)
+    qReifyType          = undefined -- lift . qReifyType
+#endif
+#endif
+#endif
+#endif
 #endif
 #endif
 
