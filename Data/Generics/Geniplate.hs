@@ -80,10 +80,10 @@ funDef :: Name -> Exp -> [Dec]
 funDef f e = [FunD f [Clause [] (NormalB e) []]]
 
 instDef :: Name -> [Type] -> Name -> Exp -> [Dec]
-#if __GLASGOW_HASKELL__ <= 710
-instDef cls ts met e = [InstanceD [] (foldl AppT (ConT cls) ts) (funDef met e)]
-#else
+#if MIN_VERSION_template_haskell(2,11,0)
 instDef cls ts met e = [InstanceD Nothing [] (foldl AppT (ConT cls) ts) (funDef met e)]
+#else
+instDef cls ts met e = [InstanceD [] (foldl AppT (ConT cls) ts) (funDef met e)]
 #endif
 
 -- | Create a 'TransformBi' instance.
@@ -213,17 +213,17 @@ instance Quasi U where
     qReport b = lift . qReport b
     qRecover = error "Data.Generics.Geniplate: qRecover not implemented"
     qReify = lift . qReify
-#if __GLASGOW_HASKELL__ >= 704
+#if MIN_VERSION_template_haskell(2,7,0)
     qReifyInstances n = lift . qReifyInstances n
-#elif __GLASGOW_HASKELL__ >= 702
+#elif MIN_VERSION_template_haskell(2,5,0)
     qClassInstances n = lift . qClassInstances n
 #endif
     qLocation = lift qLocation
     qRunIO = lift . qRunIO
-#if __GLASGOW_HASKELL__ >= 706
+#if MIN_VERSION_template_haskell(2,7,0)
     qLookupName ns = lift . qLookupName ns
     qAddDependentFile = lift . qAddDependentFile
-#if __GLASGOW_HASKELL__ >= 708
+#if MIN_VERSION_template_haskell(2,9,0)
     qReifyRoles = lift . qReifyRoles
     qReifyAnnotations = lift . qReifyAnnotations
     qReifyModule = lift . qReifyModule
@@ -400,12 +400,12 @@ getTyConInfo :: (Quasi q) => Name -> q ([TyVarBndr], [Con])
 getTyConInfo con = do
     info <- qReify con
     case info of
-#if __GLASGOW_HASKELL__ <= 710
-        TyConI (DataD _ _ tvs cs _)   -> return (tvs, cs)
-        TyConI (NewtypeD _ _ tvs c _) -> return (tvs, [c])
-#else
+#if MIN_VERSION_template_haskell(2,11,0)
         TyConI (DataD _ _ tvs _ cs _)   -> return (tvs, cs)
         TyConI (NewtypeD _ _ tvs _ c _) -> return (tvs, [c])
+#else
+        TyConI (DataD _ _ tvs cs _)   -> return (tvs, cs)
+        TyConI (NewtypeD _ _ tvs c _) -> return (tvs, [c])
 #endif
         PrimTyConI{} -> return ([], [])
         i -> genError $ "unexpected TyCon: " ++ show i
@@ -424,10 +424,10 @@ getNameType :: (Quasi q) => Name -> q ([TyVarBndr], Type, Type)
 getNameType name = do
     info <- qReify name
     case info of
-#if __GLASGOW_HASKELL__ <= 710
-        VarI _ t _ _ -> splitType t
-#else
+#if MIN_VERSION_template_haskell(2,11,0)
         VarI _ t _  -> splitType t
+#else
+        VarI _ t _ _ -> splitType t
 #endif
         _ -> genError $ "Name is not variable: " ++ pprint name
 
@@ -611,8 +611,7 @@ trBiList seenStop doDescend ra f ft st et = do
 trBiTuple :: Bool -> Mode -> RetAp -> Exp -> Type -> Type -> [Type] -> U [Clause]
 trBiTuple seenStop doDescend ra f ft st ts = do
     vs <- mapM (const $ qNewName "_t") ts
-#if __GLASGOW_HASKELL__ >= 810
--- `TupE` handles tuple sections since template-haskell 2.16.
+#if MIN_VERSION_template_haskell(2,16,0)
     let tupE = LamE (map VarP vs) $ TupE (map (Just . VarE) vs)
 #else
     let tupE = LamE (map VarP vs) $ TupE (map VarE vs)
