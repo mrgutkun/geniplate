@@ -39,3 +39,5 @@ Icon
 dist/
 dist-newstyle/
 .stack-work
+stack.yaml
+stack.yaml.lock
