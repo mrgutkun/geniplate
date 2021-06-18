@@ -170,8 +170,8 @@ instanceTransformBiMT' doDescend stops mndq ty | (TupleT _, [ft, st]) <- splitTy
     x <- newName "_x"
     (ds, tr) <- trBiQ doDescend raMonad stops f ft st
     let e = LamE [VarP f, VarP x] $ LetE ds $ AppE tr (VarE x)
-        cls = case doDescend of MTransformBi -> ''TransformBiM; MDescendBi -> ''DescendBiM; MDescend -> error "MDescend"
-        met = case doDescend of MTransformBi ->  'transformBiM; MDescendBi ->  'descendBiM; MDescend -> error "MDescend"
+        cls = case doDescend of MTransformBi -> ''TransformBiM; MDescendBi -> ''DescendBiM
+        met = case doDescend of MTransformBi ->  'transformBiM; MDescendBi ->  'descendBiM
     return $ instDef cls [mnd, ft, st] met e
 instanceTransformBiMT' _ _ _ t = genError "instanceTransformBiMT: the argument should be of the form [t| (S, T) |]"
 
@@ -196,7 +196,11 @@ genUniverseBiT stops = getNameType >=> genUniverseBiTsplit stops
 genUniverseBiT' :: [TypeQ] -> TypeQ -> Q Exp
 genUniverseBiT' stops q = q >>= splitType >>= genUniverseBiTsplit stops
 
+#if MIN_VERSION_template_haskell(2,17,0)
+genUniverseBiTsplit :: [TypeQ] -> ([TyVarBndr a], Type, Type) -> Q Exp
+#else
 genUniverseBiTsplit :: [TypeQ] -> ([TyVarBndr], Type, Type) -> Q Exp
+#endif
 genUniverseBiTsplit stops (_tvs,from,tos) = do
     let to = unList tos
 --    qRunIO $ print (from, to)
@@ -402,11 +406,20 @@ mkArm to s c ts = do
 
 type Subst = [(Name, Type)]
 
+#if MIN_VERSION_template_haskell(2,17,0)
+mkSubst :: [TyVarBndr a] -> [Type] -> Subst
+#else
 mkSubst :: [TyVarBndr] -> [Type] -> Subst
+#endif
 mkSubst vs ts =
    let vs' = map un vs
+#if MIN_VERSION_template_haskell(2,17,0)
+       un (PlainTV v _) = v
+       un (KindedTV v _ _) = v
+#else
        un (PlainTV v) = v
        un (KindedTV v _) = v
+#endif
    in  assert (length vs' == length ts) $ zip vs' ts
 
 subst :: Subst -> Type -> Type
@@ -416,7 +429,11 @@ subst s (AppT t1 t2) = AppT (subst s t1) (subst s t2)
 subst s (SigT t k) = SigT (subst s t) k
 subst _ t = t
 
+#if MIN_VERSION_template_haskell(2,17,0)
+getTyConInfo :: (Quasi q) => Name -> q ([TyVarBndr ()], [Con])
+#else
 getTyConInfo :: (Quasi q) => Name -> q ([TyVarBndr], [Con])
+#endif
 getTyConInfo con = do
     info <- qReify con
     case info of
@@ -430,7 +447,11 @@ getTyConInfo con = do
         PrimTyConI{} -> return ([], [])
         i -> genError $ "unexpected TyCon: " ++ show i
 
+#if MIN_VERSION_template_haskell(2,17,0)
+splitType :: (Quasi q) => Type -> q ([TyVarBndr Specificity], Type, Type)
+#else
 splitType :: (Quasi q) => Type -> q ([TyVarBndr], Type, Type)
+#endif
 splitType t =
   case t of
     (ForallT tvs _ t) -> do
@@ -440,7 +461,11 @@ splitType t =
     _ -> genError $ "Type is not an arrow: " ++ pprint t
 
 
+#if MIN_VERSION_template_haskell(2,17,0)
+getNameType :: (Quasi q) => Name -> q ([TyVarBndr Specificity], Type, Type)
+#else
 getNameType :: (Quasi q) => Name -> q ([TyVarBndr], Type, Type)
+#endif
 getNameType name = do
     info <- qReify name
     case info of
