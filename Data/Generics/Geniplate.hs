@@ -14,9 +14,16 @@ import Control.Exception(assert)
 import Control.Monad.State.Strict
 import Control.Monad.Identity
 import Data.Maybe
-import Language.Haskell.TH
+import Language.Haskell.TH hiding (conP)
 import Language.Haskell.TH.Syntax hiding (lift)
 --import System.IO
+
+conP :: Name -> [Pat] -> Pat
+#if MIN_VERSION_template_haskell(2,18,0)
+conP c = ConP c []
+#else
+conP c = ConP c
+#endif
 
 ---- Overloaded interface, same as Uniplate.
 
@@ -378,9 +385,9 @@ uniBiTuple ts to = fmap (:[]) $ mkArm to [] TupP ts
 uniBiCon :: Name -> [Type] -> Type -> U [Clause]
 uniBiCon con ts to = do
     (tvs, cons) <- getTyConInfo con
-    let genArm (NormalC c xs) = arm (ConP c) xs
+    let genArm (NormalC c xs) = arm (conP c) xs
         genArm (InfixC x1 c x2) = arm (\ [p1, p2] -> InfixP p1 c p2) [x1, x2]
-        genArm (RecC c xs) = arm (ConP c) [ (b,t) | (_,b,t) <- xs ]
+        genArm (RecC c xs) = arm (conP c) [ (b,t) | (_,b,t) <- xs ]
         genArm c = genError $ "uniBiCon: " ++ show c
         s = mkSubst tvs ts
         arm c xs = mkArm to s c $ map snd xs
@@ -650,7 +657,7 @@ trBiCase seenStop doDescend ra f ft st = do
 trBiList :: Bool -> Mode -> RetAp -> Exp -> Type -> Type -> Type -> U [Clause]
 trBiList seenStop doDescend ra f ft st et = do
     nil <- trMkArm seenStop doDescend ra f ft st [] (const $ ListP []) (ListE []) []
-    cons <- trMkArm seenStop doDescend ra f ft st [] (ConP '(:)) (ConE '(:)) [et, st]
+    cons <- trMkArm seenStop doDescend ra f ft st [] (conP '(:)) (ConE '(:)) [et, st]
     return [nil, cons]
 
 trBiTuple :: Bool -> Mode -> RetAp -> Exp -> Type -> Type -> [Type] -> U [Clause]
@@ -667,9 +674,9 @@ trBiTuple seenStop doDescend ra f ft st ts = do
 trBiCon :: Bool -> Mode -> RetAp -> Exp -> Name -> Type -> Type -> [Type] -> U [Clause]
 trBiCon seenStop doDescend ra f con ft st ts = do
     (tvs, cons) <- getTyConInfo con
-    let genArm (NormalC c xs) = arm (ConP c) (ConE c) xs
+    let genArm (NormalC c xs) = arm (conP c) (ConE c) xs
         genArm (InfixC x1 c x2) = arm (\ [p1, p2] -> InfixP p1 c p2) (ConE c) [x1, x2]
-        genArm (RecC c xs) = arm (ConP c) (ConE c) [ (b,t) | (_,b,t) <- xs ]
+        genArm (RecC c xs) = arm (conP c) (ConE c) [ (b,t) | (_,b,t) <- xs ]
         genArm c = genError $ "trBiCon: " ++ show c
         s = mkSubst tvs ts
         arm c ec xs = trMkArm seenStop doDescend ra f ft st s c ec $ map snd xs
